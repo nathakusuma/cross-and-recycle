@@ -34,10 +34,7 @@ const renderer = Renderer();
 renderer.setAnimationLoop(animate)
 
 function animate() {
-  requestAnimationFrame(animate);
-  animateVehicles(); 
+  animateVehicles();
   animatePlayer();
-  renderer.render(scene, camera); 
+  renderer.render(scene, camera);
 }
-
-animate();

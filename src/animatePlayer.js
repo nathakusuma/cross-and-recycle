@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { movesQueue, stepCompleted } from "./components/Player";
+import { movesQueue, stepCompleted, position } from "./components/Player";
+import { tileSize } from "./constants";
 
 const moveClock = new THREE.Clock(false);
 

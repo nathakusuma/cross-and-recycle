@@ -1,9 +1,13 @@
 import * as THREE from "three";
 import { Renderer } from "./components/Renderer";
 import { Camera } from "./components/Camera";
+import { DirectionalLight } from "./components/DirectionalLight";
 import { player } from "./components/Player";
 import { map, initializeMap } from "./components/Map";
+import { animateVehicles } from "./animateVehicles";
+import { animatePlayer } from "./animatePlayer";
 import "./style.css";
+import "./collectUserInput";
 
 const scene = new THREE.Scene();
 // add player & map
@@ -14,8 +18,7 @@ scene.add(map);
 const ambientLight = new THREE.AmbientLight();
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight();
-directionalLight.position.set(-100, -100, 200);
+const directionalLight = DirectionalLight();
 scene.add(directionalLight);
 
 const camera = Camera();
@@ -28,4 +31,13 @@ function initializeGame() {
 }
 
 const renderer = Renderer();
-renderer.render(scene, camera);
+renderer.setAnimationLoop(animate)
+
+function animate() {
+  requestAnimationFrame(animate);
+  animateVehicles(); 
+  animatePlayer();
+  renderer.render(scene, camera); 
+}
+
+animate();

@@ -23,19 +23,41 @@ function randomElement(array) {
 
 function generateForestMetadata() {
   const occupiedTiles = new Set();
-  const trees = Array.from({ length: 4 }, () => {
+  const trees = [];
+  const trash = [];
+  const bins = [];
+
+  Array.from({ length: 4 }, () => {
     let tileindex;
     do {
       tileindex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
     } while (occupiedTiles.has(tileindex));
     occupiedTiles.add(tileindex);
-
     const height = randomElement([20, 45, 60]);
-
-    return { tileindex, height };
+    trees.push({ tileIndex: tileindex, height });
   });
 
-  return { type: "forest", trees };
+  Array.from({ length: 3 }, () => {
+    let tileindex;
+    do {
+      tileindex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
+    } while (occupiedTiles.has(tileindex));
+    occupiedTiles.add(tileindex);
+    const type = randomElement(['organic', 'inorganic']);
+    trash.push({ tileIndex: tileindex, type });
+  });
+
+  const binTypes = ['organic', 'inorganic'];
+  binTypes.forEach(type => {
+    let tileindex;
+    do {
+      tileindex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
+    } while (occupiedTiles.has(tileindex));
+    occupiedTiles.add(tileindex);
+    bins.push({ tileIndex: tileindex, type });
+  });
+
+  return { type: "forest", trees, trash, bins };
 }
 
 function generateCarLaneMetadata() {

@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 import { generateRows } from "../utilities/generateRows";
+import { tileSize } from "../constants";
 import { Grass } from './Grass';
 import { Road } from './Road';
 import { Tree } from './Tree';
 import { Car } from './Car';
 import { Truck } from './Truck';
+import { Trash } from './Trash';
+import { Bin } from './Bin';
 
 export const metadata = [];
 
@@ -36,8 +39,22 @@ export function addRows() {
 
       rowData.trees.forEach(({ tileIndex, height }) => {
         const tree = Tree(tileIndex, height);
-        tree.position.x = tileIndex * 20;
+        tree.position.x = tileIndex * tileSize;
         row.add(tree);
+      });
+
+      rowData.trash = rowData.trash || [];
+      rowData.trash.forEach(item => {
+        const trash = Trash(item.tileIndex, item.type);
+        item.ref = trash;
+        row.add(trash);
+      });
+
+      rowData.bins = rowData.bins || [];
+      rowData.bins.forEach(binData => {
+        const bin = Bin(binData.tileIndex, binData.type);
+        binData.ref = bin;
+        row.add(bin);
       });
 
       map.add(row);

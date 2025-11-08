@@ -15,14 +15,12 @@ export function endsUpInValidPosition(currentPosition, moves) {
 
   const finalRow = rows[finalPosition.rowIndex - 1];
 
-  if (
-    finalRow &&
-    finalRow.type === "forest" &&
-    finalRow.trees.some(
+  if (finalRow && finalRow.type === "forest") {
+    if (finalRow.trees.some(
       (tree) => tree.tileIndex === finalPosition.tileIndex
-    )
-  ) {
-    return false;
+    )) {
+      return false;
+    }
   }
 
   return true;

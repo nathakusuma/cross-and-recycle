@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { endsUpInValidPosition } from "../utilities/endsUpInValidPosition.js";
-import { metadata as rows, addRows } from "./Map";
+import { metadata as rows, addRows, map } from "./Map";
+
+export const inventory = [];
 
 export const player = Player();
 
@@ -59,6 +61,25 @@ export function initializePlayer() {
 
   movesQueue.length = 0;
   isGameOver = false;
+  inventory.length = 0;
+  updateInventoryUI();
+}
+
+export function updateInventoryUI() {
+  let ui = document.getElementById("inventory");
+  if (!ui) {
+    ui = document.createElement("div");
+    ui.id = "inventory";
+    ui.style.position = "absolute";
+    ui.style.top = "70px";
+    ui.style.left = "20px";
+    ui.style.color = "white";
+    ui.style.fontSize = "1.2em";
+    document.body.appendChild(ui);
+  }
+  const organic = inventory.filter(t => t === 'organic').length;
+  const inorganic = inventory.filter(t => t === 'inorganic').length;
+  ui.innerHTML = `Inventory: Organic: ${organic} | Inorganic: ${inorganic}`;
 }
 
 export function queueMove(direction) {
@@ -88,10 +109,71 @@ export function stepCompleted() {
 
   if (position.currentRow > rows.length - 10) addRows();
 
+  const currentRowData = rows[position.currentRow - 1];
+  if (currentRowData && currentRowData.type === "forest" && currentRowData.trash) {
+    currentRowData.trash = currentRowData.trash.filter(item => {
+      if (item.tileIndex === position.currentTile && item.ref) {
+        inventory.push(item.type);
+        if (item.ref.parent) {
+          item.ref.parent.remove(item.ref);
+        }
+        updateInventoryUI();
+        return false;
+      }
+      return true;
+    });
+  }
+
+  if (currentRowData && currentRowData.bins) {
+    currentRowData.bins.forEach(bin => {
+      if (bin.tileIndex === position.currentTile && inventory.length > 0) {
+        const trashType = inventory.shift();
+        const correct = trashType === bin.type;
+        const scoreChange = correct ? 5 : -5;
+
+        const scoreDOM = document.getElementById("score");
+        if (scoreDOM) {
+          const newScore = parseInt(scoreDOM.innerText) + scoreChange;
+          scoreDOM.innerText = Math.max(0, newScore).toString();
+        }
+
+        showFloatingText(correct ? "+5" : "-5", correct ? 0x00ff00 : 0xff0000);
+
+        updateInventoryUI();
+      }
+    });
+  }
+
   const scoreDOM = document.getElementById("score");
   if (scoreDOM) {
     scoreDOM.innerText = position.currentRow.toString();
   }
+}
+
+export function showFloatingText(text, color = 0xffffff) {
+  const div = document.createElement("div");
+  div.innerText = text;
+  div.style.position = "absolute";
+  div.style.color = `#${color.toString(16).padStart(6, '0')}`;
+  div.style.fontSize = "2em";
+  div.style.fontWeight = "bold";
+  div.style.pointerEvents = "none";
+  div.style.left = `${window.innerWidth / 2}px`;
+  div.style.top = `${window.innerHeight / 2 - 100}px`;
+  div.style.transform = "translateX(-50%)";
+  div.style.zIndex = "1000";
+  div.style.textShadow = "2px 2px 4px black";
+  document.body.appendChild(div);
+
+  let opacity = 1;
+  const animate = () => {
+    opacity -= 0.02;
+    div.style.opacity = opacity;
+    div.style.transform = `translateX(-50%) translateY(${100 * (1 - opacity)}px)`;
+    if (opacity > 0) requestAnimationFrame(animate);
+    else div.remove();
+  };
+  requestAnimationFrame(animate);
 }
 
 export function triggerGameOver() {

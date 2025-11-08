@@ -50,6 +50,67 @@ body {
   backdrop-filter: blur(5px);
 }
 
+#deposit-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid #4CAF50;
+  border-radius: 15px;
+  padding: 20px;
+  z-index: 1000;
+  min-width: 300px;
+  text-align: center;
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+#deposit-content h3 {
+  margin: 0 0 15px 0;
+  color: #4CAF50;
+  font-size: 1.2em;
+}
+
+#trash-options {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  gap: 20px;
+}
+
+.trash-option {
+  padding: 15px;
+  border: 2px solid #666;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.trash-option:hover {
+  border-color: #4CAF50;
+  background: rgba(76, 175, 80, 0.2);
+  transform: scale(1.05);
+}
+
+.trash-count {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.trash-type {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.deposit-hint {
+  margin: 15px 0 0 0;
+  font-size: 0.8em;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+
 #result-container {
   position: absolute;
   min-width: 100%;

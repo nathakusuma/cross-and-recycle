@@ -3,6 +3,7 @@ import { endsUpInValidPosition } from "../utilities/endsUpInValidPosition.js";
 import { metadata as rows, addRows, map } from "./Map";
 
 export const inventory = [];
+export let currentScore = 0;
 
 export const player = Player();
 
@@ -44,6 +45,7 @@ export const position = {
 
 export const movesQueue = [];
 export let isGameOver = false;
+export let isDepositPopupOpen = false;
 
 export function initializePlayer() {
   player.position.x = 0;
@@ -62,6 +64,8 @@ export function initializePlayer() {
   movesQueue.length = 0;
   isGameOver = false;
   inventory.length = 0;
+  currentScore = 0;
+  updateScore(0);
   updateInventoryUI();
 }
 
@@ -82,9 +86,17 @@ export function updateInventoryUI() {
   ui.innerHTML = `Inventory: Organic: ${organic} | Inorganic: ${inorganic}`;
 }
 
+export function updateScore(change = 0) {
+  currentScore = Math.max(0, currentScore + change);
+  const scoreDOM = document.getElementById("score");
+  if (scoreDOM) {
+    scoreDOM.innerText = currentScore.toString();
+  }
+}
+
 export function queueMove(direction) {
-  // Prevent movement if game is over
-  if (isGameOver) return;
+  // Prevent movement if game is over or popup is open
+  if (isGameOver || isDepositPopupOpen) return;
 
   const isValidMove = endsUpInValidPosition(
     {
@@ -102,7 +114,10 @@ export function queueMove(direction) {
 export function stepCompleted() {
   const direction = movesQueue.shift();
 
-  if (direction === "forward") position.currentRow += 1;
+  if (direction === "forward") {
+    position.currentRow += 1;
+    updateScore(1); // Add 1 point for moving forward
+  }
   if (direction === "backward") position.currentRow -= 1;
   if (direction === "left") position.currentTile -= 1;
   if (direction === "right") position.currentTile += 1;
@@ -124,30 +139,75 @@ export function stepCompleted() {
     });
   }
 
-  if (currentRowData && currentRowData.bins) {
+  if (currentRowData && currentRowData.bins && !isDepositPopupOpen) {
     currentRowData.bins.forEach(bin => {
       if (bin.tileIndex === position.currentTile && inventory.length > 0) {
-        const trashType = inventory.shift();
-        const correct = trashType === bin.type;
-        const scoreChange = correct ? 5 : -5;
-
-        const scoreDOM = document.getElementById("score");
-        if (scoreDOM) {
-          const newScore = parseInt(scoreDOM.innerText) + scoreChange;
-          scoreDOM.innerText = Math.max(0, newScore).toString();
-        }
-
-        showFloatingText(correct ? "+5" : "-5", correct ? 0x00ff00 : 0xff0000);
-
-        updateInventoryUI();
+        showDepositPopup(bin.type, () => {
+          // Callback after deposit is complete
+        });
       }
     });
   }
+}
 
-  const scoreDOM = document.getElementById("score");
-  if (scoreDOM) {
-    scoreDOM.innerText = position.currentRow.toString();
-  }
+export function showDepositPopup(binType, callback) {
+  if (inventory.length === 0) return;
+
+  isDepositPopupOpen = true;
+  const popup = document.getElementById("deposit-popup");
+  const optionsDiv = document.getElementById("trash-options");
+
+  const organicCount = inventory.filter(t => t === 'organic').length;
+  const inorganicCount = inventory.filter(t => t === 'inorganic').length;
+
+  optionsDiv.innerHTML = `
+    <div class="trash-option">
+      <div class="trash-count">${organicCount}</div>
+      <div class="trash-type">Organic (O)</div>
+    </div>
+    <div class="trash-option">
+      <div class="trash-count">${inorganicCount}</div>
+      <div class="trash-type">Inorganic (I)</div>
+    </div>
+  `;
+
+  popup.style.display = "block";
+
+  const handleKeyPress = (e) => {
+    e.preventDefault();
+    let depositedType = null;
+
+    if (e.key.toLowerCase() === 'o' && organicCount > 0) {
+      depositedType = 'organic';
+    } else if (e.key.toLowerCase() === 'i' && inorganicCount > 0) {
+      depositedType = 'inorganic';
+    } else if (e.key === 'Escape') {
+      popup.style.display = "none";
+      document.removeEventListener('keydown', handleKeyPress);
+      isDepositPopupOpen = false;
+      return;
+    }
+
+    if (depositedType) {
+      const index = inventory.indexOf(depositedType);
+      if (index !== -1) {
+        inventory.splice(index, 1);
+        const correct = depositedType === binType;
+        const scoreChange = correct ? 5 : -5;
+
+        updateScore(scoreChange);
+        showFloatingText(correct ? "+5" : "-5", correct ? 0x00ff00 : 0xff0000);
+        updateInventoryUI();
+      }
+
+      popup.style.display = "none";
+      document.removeEventListener('keydown', handleKeyPress);
+      isDepositPopupOpen = false;
+      callback();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyPress);
 }
 
 export function showFloatingText(text, color = 0xffffff) {

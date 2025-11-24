@@ -5,10 +5,19 @@ export function Bin(tileIndex, type) {
   const bin = new THREE.Group();
   bin.position.x = tileIndex * tileSize;
 
+  let binColor;
+  if (type === 'organic') {
+    binColor = 0x228B22;
+  } else if (type === 'inorganic') {
+    binColor = 0x1E90FF;
+  } else if (type === 'dangerous') {
+    binColor = 0xFF6347;
+  }
+
   const body = new THREE.Mesh(
     new THREE.BoxGeometry(25, 25, 30),
     new THREE.MeshLambertMaterial({
-      color: type === 'organic' ? 0x228B22 : 0x1E90FF,
+      color: binColor,
       flatShading: true,
     })
   );

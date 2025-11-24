@@ -5,10 +5,18 @@ export function Trash(tileIndex, type) {
   const trash = new THREE.Group();
   trash.position.x = tileIndex * tileSize;
 
-  const color = type === 'organic' ? 0x8B4513 : 0x4682B4;
-  const geometry = type === 'organic'
-    ? new THREE.CylinderGeometry(8, 8, 2, 6)
-    : new THREE.BoxGeometry(12, 12, 12);
+  let color, geometry;
+
+  if (type === 'organic') {
+    color = 0x8B4513;
+    geometry = new THREE.CylinderGeometry(8, 8, 2, 6);
+  } else if (type === 'inorganic') {
+    color = 0x4682B4;
+    geometry = new THREE.BoxGeometry(12, 12, 12);
+  } else if (type === 'dangerous') {
+    color = 0xFF4500;
+    geometry = new THREE.OctahedronGeometry(10, 0);
+  }
 
   const material = new THREE.MeshLambertMaterial({
     color,

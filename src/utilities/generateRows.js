@@ -43,11 +43,11 @@ function generateForestMetadata() {
       tileindex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
     } while (occupiedTiles.has(tileindex));
     occupiedTiles.add(tileindex);
-    const type = randomElement(['organic', 'inorganic']);
+    const type = randomElement(['organic', 'inorganic', 'dangerous']);
     trash.push({ tileIndex: tileindex, type });
   });
 
-  const binTypes = ['organic', 'inorganic'];
+  const binTypes = ['organic', 'inorganic', 'dangerous'];
   binTypes.forEach(type => {
     let tileindex;
     do {

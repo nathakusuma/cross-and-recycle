@@ -83,7 +83,8 @@ export function updateInventoryUI() {
   }
   const organic = inventory.filter(t => t === 'organic').length;
   const inorganic = inventory.filter(t => t === 'inorganic').length;
-  ui.innerHTML = `Inventory: Organic: ${organic} | Inorganic: ${inorganic}`;
+  const dangerous = inventory.filter(t => t === 'dangerous').length;
+  ui.innerHTML = `Inventory: Organic: ${organic} | Inorganic: ${inorganic} | Dangerous: ${dangerous}`;
 }
 
 export function updateScore(change = 0) {
@@ -159,6 +160,7 @@ export function showDepositPopup(binType, callback) {
 
   const organicCount = inventory.filter(t => t === 'organic').length;
   const inorganicCount = inventory.filter(t => t === 'inorganic').length;
+  const dangerousCount = inventory.filter(t => t === 'dangerous').length;
 
   optionsDiv.innerHTML = `
     <div class="trash-option">
@@ -168,6 +170,10 @@ export function showDepositPopup(binType, callback) {
     <div class="trash-option">
       <div class="trash-count">${inorganicCount}</div>
       <div class="trash-type">Inorganic (I)</div>
+    </div>
+    <div class="trash-option">
+      <div class="trash-count">${dangerousCount}</div>
+      <div class="trash-type">Dangerous (D)</div>
     </div>
   `;
 
@@ -181,6 +187,8 @@ export function showDepositPopup(binType, callback) {
       depositedType = 'organic';
     } else if (e.key.toLowerCase() === 'i' && inorganicCount > 0) {
       depositedType = 'inorganic';
+    } else if (e.key.toLowerCase() === 'd' && dangerousCount > 0) {
+      depositedType = 'dangerous';
     } else if (e.key === 'Escape') {
       popup.style.display = "none";
       document.removeEventListener('keydown', handleKeyPress);

@@ -49,7 +49,6 @@ export let isDepositPopupOpen = false;
 let sprawlAnimation = null;
 
 export function initializePlayer() {
-  // Cancel any ongoing sprawl animation
   if (sprawlAnimation) {
     cancelAnimationFrame(sprawlAnimation);
     sprawlAnimation = null;
@@ -59,7 +58,6 @@ export function initializePlayer() {
   player.position.y = 0;
   player.children[0].position.z = 0;
 
-  // Reset player rotation and scale for sprawl animation
   player.children[0].rotation.x = 0;
   player.children[0].rotation.y = 0;
   player.children[0].rotation.z = 0;
@@ -103,7 +101,6 @@ export function updateScore(change = 0) {
 }
 
 export function queueMove(direction) {
-  // Prevent movement if game is over or popup is open
   if (isGameOver || isDepositPopupOpen) return;
 
   const isValidMove = endsUpInValidPosition(
@@ -141,6 +138,7 @@ export function stepCompleted() {
           item.ref.parent.remove(item.ref);
         }
         updateInventoryUI();
+        showEducationalPopup(item.type);
         return false;
       }
       return true;
@@ -151,7 +149,6 @@ export function stepCompleted() {
     currentRowData.bins.forEach(bin => {
       if (bin.tileIndex === position.currentTile && inventory.length > 0) {
         showDepositPopup(() => {
-          // Callback after deposit is complete
         });
       }
     });
@@ -288,6 +285,119 @@ export function showFloatingText(text, color = 0xffffff) {
     else div.remove();
   };
   requestAnimationFrame(animate);
+}
+
+export function showEducationalPopup(trashType) {
+  const educationalFacts = {
+    organic: [
+      "Food scraps: 2-6 months to decompose! Makes nutrient-rich compost.",
+      "Organic waste in landfills creates methane gas - 25x worse than CO2!",
+      "Composting reduces landfill mass by 30% and prevents soil pollution!"
+    ],
+    inorganic: [
+      "Plastic bottles: 450+ years to decompose but 100% recyclable!",
+      "One aluminum can = energy to power a TV for 3 hours when recycled!",
+      "Glass can be recycled forever without losing quality!"
+    ],
+    dangerous: [
+      "Batteries contain toxic heavy metals that contaminate water supplies!",
+      "One battery pollutes 20m2 of land for 50 years if not recycled!",
+      "Electronics have valuable materials that can be safely recovered!"
+    ]
+  };
+
+  const colorSchemes = {
+    organic: {
+      border: "#8BC34A",  // Light green
+      header: "#8BC34A",
+      glow: "rgba(139, 195, 74, 0.3)"
+    },
+    inorganic: {
+      border: "#2196F3",  // Blue
+      header: "#2196F3",
+      glow: "rgba(33, 150, 243, 0.3)"
+    },
+    dangerous: {
+      border: "#FF5722",  // Red/orange
+      header: "#FF5722",
+      glow: "rgba(255, 87, 34, 0.3)"
+    }
+  };
+
+  const facts = educationalFacts[trashType];
+  const colors = colorSchemes[trashType];
+  if (!facts || !colors) return;
+
+  const randomFact = facts[Math.floor(Math.random() * facts.length)];
+
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <div style="
+      background: rgba(0, 0, 0, 0.9);
+      border: 3px solid ${colors.border};
+      border-radius: 15px;
+      padding: 20px;
+      color: white;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.8em;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 20px ${colors.glow}, 0 8px 32px rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      line-height: 1.4;
+    ">
+      <div style="
+        font-size: 1em;
+        margin-bottom: 15px;
+        color: ${colors.header};
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      ">
+        ${trashType.toUpperCase()} FACT!
+      </div>
+      <div style="margin-bottom: 15px; opacity: 0.9;">
+        ${randomFact}
+      </div>
+      <div style="
+        font-size: 0.7em;
+        opacity: 0.7;
+        border-top: 1px solid ${colors.border};
+        padding-top: 10px;
+        margin-top: 10px;
+      ">
+        KEEP RECYCLING!
+      </div>
+    </div>
+  `;
+
+  div.style.position = "absolute";
+  div.style.pointerEvents = "none";
+  div.style.left = `${window.innerWidth / 2}px`;
+  div.style.top = `${window.innerHeight / 2 + 50}px`;
+  div.style.transform = "translateX(-50%)";
+  div.style.zIndex = "1000";
+  document.body.appendChild(div);
+
+  let opacity = 1;
+  let offsetY = 0;
+
+  const animate = () => {
+    opacity -= 0.008; // Slower fade for longer reading time
+    offsetY += 1.5; // Gentle upward float
+
+    div.style.opacity = opacity;
+    div.style.transform = `translateX(-50%) translateY(${offsetY}px)`;
+
+    if (opacity > 0) {
+      requestAnimationFrame(animate);
+    } else {
+      div.remove();
+    }
+  };
+
+  // Start animation after a brief delay
+  setTimeout(() => {
+    requestAnimationFrame(animate);
+  }, 500);
 }
 
 export function triggerGameOver() {

@@ -1,4 +1,6 @@
-import { queueMove } from "./components/Player";
+import { queueMove, movesQueue } from "./components/Player";
+
+const pressedKeys = new Set();
 
 document
   .getElementById("forward")
@@ -18,16 +20,41 @@ document
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowUp") {
-    event.preventDefault(); // Avoid scrolling the page
-    queueMove("forward");
+    event.preventDefault();
+    if (!pressedKeys.has("ArrowUp")) {
+      pressedKeys.add("ArrowUp");
+      queueMove("forward");
+    }
   } else if (event.key === "ArrowDown") {
-    event.preventDefault(); // Avoid scrolling the page
-    queueMove("backward");
+    event.preventDefault();
+    if (!pressedKeys.has("ArrowDown")) {
+      pressedKeys.add("ArrowDown");
+      queueMove("backward");
+    }
   } else if (event.key === "ArrowLeft") {
-    event.preventDefault(); // Avoid scrolling the page
-    queueMove("left");
+    event.preventDefault();
+    if (!pressedKeys.has("ArrowLeft")) {
+      pressedKeys.add("ArrowLeft");
+      queueMove("left");
+    }
   } else if (event.key === "ArrowRight") {
-    event.preventDefault(); // Avoid scrolling the page
-    queueMove("right");
+    event.preventDefault();
+    if (!pressedKeys.has("ArrowRight")) {
+      pressedKeys.add("ArrowRight");
+      queueMove("right");
+    }
+  }
+});
+
+window.addEventListener("keyup", (event) => {
+  if (event.key === "ArrowUp" || event.key === "ArrowDown" ||
+    event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    pressedKeys.delete(event.key);
+
+    if (pressedKeys.size === 0) {
+      if (movesQueue.length > 1) {
+        movesQueue.splice(1);
+      }
+    }
   }
 });

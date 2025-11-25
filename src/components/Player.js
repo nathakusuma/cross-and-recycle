@@ -46,8 +46,15 @@ export const position = {
 export const movesQueue = [];
 export let isGameOver = false;
 export let isDepositPopupOpen = false;
+let sprawlAnimation = null;
 
 export function initializePlayer() {
+  // Cancel any ongoing sprawl animation
+  if (sprawlAnimation) {
+    cancelAnimationFrame(sprawlAnimation);
+    sprawlAnimation = null;
+  }
+
   player.position.x = 0;
   player.position.y = 0;
   player.children[0].position.z = 0;
@@ -294,6 +301,9 @@ export function triggerGameOver() {
   const startTime = Date.now();
 
   function animateSprawl() {
+    // Stop animation if game has been reset
+    if (!isGameOver) return;
+
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
 
@@ -311,9 +321,11 @@ export function triggerGameOver() {
     playerMesh.scale.z = 1 + easedProgress * 0.6; // Spread longer
 
     if (progress < 1) {
-      requestAnimationFrame(animateSprawl);
+      sprawlAnimation = requestAnimationFrame(animateSprawl);
+    } else {
+      sprawlAnimation = null;
     }
   }
 
-  animateSprawl();
+  sprawlAnimation = requestAnimationFrame(animateSprawl);
 }

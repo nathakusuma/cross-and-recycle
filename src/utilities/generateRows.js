@@ -47,15 +47,12 @@ function generateForestMetadata() {
     trash.push({ tileIndex: tileindex, type });
   });
 
-  const binTypes = ['organic', 'inorganic', 'dangerous'];
-  binTypes.forEach(type => {
-    let tileindex;
-    do {
-      tileindex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
-    } while (occupiedTiles.has(tileindex));
-    occupiedTiles.add(tileindex);
-    bins.push({ tileIndex: tileindex, type });
-  });
+  let tileindex;
+  do {
+    tileindex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
+  } while (occupiedTiles.has(tileindex));
+  occupiedTiles.add(tileindex);
+  bins.push({ tileIndex: tileindex, isMultiBin: true });
 
   return { type: "forest", trees, trash, bins };
 }

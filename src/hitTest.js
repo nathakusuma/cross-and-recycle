@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { metadata as rows } from "./components/Map";
-import { player, position, isGameOver, triggerGameOver } from "./components/Player";
+import { player, position, currentScore, isGameOver, triggerGameOver } from "./components/Player";
 
 const resultDOM = document.getElementById("result-container");
 const finalScoreDOM = document.getElementById("final-score");
@@ -29,7 +29,7 @@ export function hitTest() {
         // Show result UI
         if (!resultDOM || !finalScoreDOM) return;
         resultDOM.style.visibility = "visible";
-        finalScoreDOM.innerText = position.currentRow.toString();
+        finalScoreDOM.innerText = currentScore.toString();
       }
     });
   }

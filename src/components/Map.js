@@ -52,7 +52,7 @@ export function addRows() {
 
       rowData.bins = rowData.bins || [];
       rowData.bins.forEach(binData => {
-        const bin = Bin(binData.tileIndex, binData.type);
+        const bin = Bin(binData.tileIndex);
         binData.ref = bin;
         row.add(bin);
       });

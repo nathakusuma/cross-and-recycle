@@ -381,9 +381,9 @@ export function showEducationalPopup(trashType) {
   let offsetY = 0;
 
   const animate = () => {
-    opacity -= 0.008; // Slower fade for longer reading time
-    offsetY += 1.5; // Gentle upward float
-
+    opacity -= 0.003; 
+    offsetY += 0.8;  
+    
     div.style.opacity = opacity;
     div.style.transform = `translateX(-50%) translateY(${offsetY}px)`;
 
@@ -394,10 +394,10 @@ export function showEducationalPopup(trashType) {
     }
   };
 
-  // Start animation after a brief delay
+  // Lama delay sebelum fade: 2.5 detik
   setTimeout(() => {
     requestAnimationFrame(animate);
-  }, 500);
+  }, 2500);
 }
 
 export function triggerGameOver() {
